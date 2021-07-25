@@ -1,6 +1,57 @@
-import telebot
-from config import TOKEN
+import json
 
+import requests
+import telebot
+from config import TOKEN, ACCESS
+
+currencies = {
+    "доллар": "USD",
+    "евро": "EUR",
+    "рубль": "RUB"
+}
+def cross_currency(cur1,cur2):
+    return cur1/cur2
+
+
+bot = telebot.TeleBot(TOKEN)
+type_of_data = 'latest'
+api_version = 'v1'
+base_url = 'api.exchangeratesapi.io'
+protocol = 'http'
+
+address = f'{protocol}://{base_url}/{api_version }/{type_of_data}?access_key={ACCESS}&base={currencies["евро"]}&symbols={currencies["рубль"]},{currencies["доллар"]}'
+received_data = requests.get(address)
+formatted_data = json.loads(received_data.content)
+
+# print(formatted_data["rates"]["RUB"])
+#
+# print(received_data.text)
+# print(formatted_data)
+
+@bot.message_handler(commands=['start', 'help'])
+def help(message: telebot.types.Message):
+    text = "Чтобы получить курс валют введите пару валют через пробел без скобок:\n" \
+           "<Имеющаяся валюта> <В какую надо конвертировать> <Количество имеющейся валюты>\n" \
+           "Например:\n" \
+           "доллар рубль 5"
+    bot.send_message(message.chat.id, "Привет " + message.chat.first_name)
+    bot.send_message(message.chat.id, text)
+
+@bot.message_handler(commands=['value'])
+def function_name(message: telebot.types.Message):
+    text = "Доступные для конвертации валюты"
+    for key in currencies.keys():
+        text = '\n'.join((text, key))
+    bot.send_message(message.chat.id, text)
+
+@bot.message_handler(content_types=['text'])
+def reply_to_user(message: telebot.types.Message):
+    text = "Запрошенный курс:\n"
+    currency_from, currency_to, how_much = message.text.split(" ")
+    reply = formatted_data["rates"][currencies[currency_to]]
+    bot.send_message(message.chat.id, text + str(reply))
+
+bot.polling(none_stop=True)
 
 
 
