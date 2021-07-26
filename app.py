@@ -4,10 +4,14 @@ import requests
 import telebot
 from config import TOKEN, ACCESS
 
+class ConverterExceptions(Exception):
+    pass
+
+
 currencies = {
     "доллар": "USD",
     "евро": "EUR",
-    "рубль": "RUB"
+    "рубль": "RUB",
 }
 def cross_currency(cur1,cur2):
     return cur1/cur2
@@ -63,10 +67,13 @@ def function_name(message: telebot.types.Message):
 
 @bot.message_handler(content_types=['text'])
 def reply_to_user(message: telebot.types.Message):
-    text = "Запрошенный курс:\n"
+
     currency_from, currency_to, how_much = message.text.split(" ")
-    reply = process_request(currency_from,currency_to)
-    bot.send_message(message.chat.id, text + str(reply))
+    reply = process_request(currency_from, currency_to)
+    text = f"Запрошенный курс из {currency_from} в {currency_to}:\n" \
+           f"Вы получите {reply} {currency_to}"
+
+    bot.send_message(message.chat.id, text)
 
 bot.polling(none_stop=True)
 
