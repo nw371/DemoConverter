@@ -20,8 +20,25 @@ base_url = 'api.exchangeratesapi.io'
 protocol = 'http'
 
 address = f'{protocol}://{base_url}/{api_version }/{type_of_data}?access_key={ACCESS}&base={currencies["евро"]}&symbols={currencies["рубль"]},{currencies["доллар"]}'
-received_data = requests.get(address)
-formatted_data = json.loads(received_data.content)
+
+def process_request(currency_from, currency_to):
+    received_data = requests.get(address)
+    formatted_data = json.loads(received_data.content)
+    print(formatted_data)
+    if currencies[currency_from] == "EUR":
+        currency_from = 1
+        currency_to = formatted_data["rates"][currencies[currency_to]]
+    elif currencies[currency_to] == "EUR":
+        currency_to = 1
+        currency_from = formatted_data["rates"][currencies[currency_from]]
+    else:
+        currency_to = formatted_data["rates"][currencies[currency_to]]
+        currency_from = formatted_data["rates"][currencies[currency_from]]
+
+    conversion = float(currency_to)/float(currency_from)
+    return conversion
+
+
 
 # print(formatted_data["rates"]["RUB"])
 #
@@ -48,7 +65,7 @@ def function_name(message: telebot.types.Message):
 def reply_to_user(message: telebot.types.Message):
     text = "Запрошенный курс:\n"
     currency_from, currency_to, how_much = message.text.split(" ")
-    reply = formatted_data["rates"][currencies[currency_to]]
+    reply = process_request(currency_from,currency_to)
     bot.send_message(message.chat.id, text + str(reply))
 
 bot.polling(none_stop=True)
