@@ -67,8 +67,26 @@ def function_name(message: telebot.types.Message):
 
 @bot.message_handler(content_types=['text'])
 def reply_to_user(message: telebot.types.Message):
+    received = message.text.split(" ")
 
-    currency_from, currency_to, how_much = message.text.split(" ")
+    if len(received) > 3:
+        raise ConverterExceptions("Введено боллее 3 параметров")
+
+    currency_from, currency_to, how_much = received
+
+    if currency_from == currency_to:
+        raise ConverterExceptions("Вы идиот?")
+
+    try:
+        control = currencies[currency_to]
+    except KeyError:
+        raise ConverterExceptions("Несуществующая валюта")
+
+    try:
+        control = currencies[currency_from]
+    except KeyError:
+        raise ConverterExceptions("Несуществующая валюта")
+
     reply = process_request(currency_from, currency_to)
     text = f"Запрошенный курс из {currency_from} в {currency_to}:\n" \
            f"Вы получите {reply} {currency_to}"
