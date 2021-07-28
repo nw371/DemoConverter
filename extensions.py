@@ -2,14 +2,22 @@ import json
 import requests
 from config import *
 
+
 class ConverterExceptions(Exception):
     pass
+
 
 class Exchange:
 
     @staticmethod
     def get_price(currency_from, currency_to, how_much):
-
+        """
+Метод конвертирует валюты из одной в другую в зависимости от количества
+        :param currency_from: Имеющаяся валюта
+        :param currency_to: Валюта в которую надо сконвертировать
+        :param how_much: Количество имеюьейся валюты
+        :return: Количество валюты в которую конвертировали
+        """
         if currency_from == currency_to:
             raise ConverterExceptions(f"А смысл?")
 
@@ -42,5 +50,5 @@ class Exchange:
             currency_to = formatted_data["rates"][currencies[currency_to]]
             currency_from = formatted_data["rates"][currencies[currency_from]]
 
-        conversion = (float(currency_to)/float(currency_from))*float(how_much)
+        conversion = (float(currency_to) / float(currency_from)) * float(how_much)
         return conversion
