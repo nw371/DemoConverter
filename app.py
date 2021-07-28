@@ -29,7 +29,7 @@ def function_name(message: telebot.types.Message):
     :param message: Полученное от пользователя сообщение с соответствующей командой
     :return: Возвращает пользователю ответ в виде списка доступных валют
     """
-    text = "Доступные для конвертации валюты"
+    text = "Доступные для конвертации валюты:"
     for key in currencies.keys():
         text = '\n'.join((text, key))
     bot.send_message(message.chat.id, text)
